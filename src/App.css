@@ -1,0 +1,23 @@
+@media screen and (max-width: 4000px), (max-height: 3000px) {
+  html {
+    zoom: 150%;
+  }
+}
+
+@media screen and (max-width: 2000px), (max-height: 1100px) {
+  html {
+    zoom: 125%;
+  }
+}
+
+@media screen and (max-width: 1500px), (max-height: 900px) {
+  html {
+    zoom: 95%;
+  }
+}
+
+@media screen and (max-width: 1300px), (max-height: 750px) {
+  html {
+    zoom: 75%;
+  }
+}
