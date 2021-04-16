@@ -70,7 +70,7 @@ function prepareGrid(grid) {
             grid[row][col].distance = Infinity;
             grid[row][col].prevCell = null;
             const id = `cell-${row}-${col}`;
-            var cellClasses = "cell";
+            var cellClasses = "cell noselect";
             if (grid[row][col].isStart) {
                 cellClasses += " cell-start";
             }
@@ -96,7 +96,7 @@ function resetAll(grid) {
             grid[row][col].prevCell = null;
             grid[row][col].isWall = false;
             const id = `cell-${row}-${col}`;
-            var cellClasses = "cell";
+            var cellClasses = "cell noselect";
             if (grid[row][col].isStart) {
                 cellClasses += " cell-start";
             }
@@ -116,8 +116,8 @@ function toggleWall(grid, row, col) {
 }
 
 export default function Grid(props) {
-    const [isMousePressed, setMousePressed] = useState(false);
-    const { rowCount, colCount, startCell, endCell, isWeighted, resetCallback, reset, visualizingOver, isVisualizing, algorithm } = props;
+    const [isMousePressed, setMousePressed] = useState(0);
+    const { rowCount, colCount, startCell, endCell, isWeighted, resetCallback, reset, visualizingOver, isVisualizing, algorithm, setStartCell, setEndCell } = props;
     const [grid, setGrid] = useState(emptyGrid(rowCount, colCount, startCell, endCell, isWeighted));
 
     useEffect(() => {
@@ -197,19 +197,33 @@ export default function Grid(props) {
     }, [isVisualizing, grid, algorithm, startCell, endCell, visualizingOver]);
 
     function handleMouseDown(row, col) {
-        setMousePressed(true);
-        const newGrid = toggleWall(grid.slice(), row, col);
-        setGrid(newGrid);
+        if (grid[row][col].isStart) {
+            setMousePressed(2);
+            setStartCell(row, col);
+        } else if (grid[row][col].isFinish) {
+            setMousePressed(3);
+            setEndCell(row, col);
+        } else {
+            setMousePressed(1);
+            const newGrid = toggleWall(grid.slice(), row, col);
+            setGrid(newGrid);
+        }
     }
 
     function handleMouseEnter(row, col) {
-        if (!isMousePressed) return;
-        const newGrid = toggleWall(grid.slice(), row, col);
-        setGrid(newGrid);
+        if (isMousePressed === 0) return;
+        if (isMousePressed === 1) {
+            const newGrid = toggleWall(grid.slice(), row, col);
+            setGrid(newGrid);
+        } else if (isMousePressed === 2) {
+            setStartCell(row, col);
+        } else if (isMousePressed === 3) {
+            setEndCell(row, col);
+        }
     }
 
     function handleMouseUp() {
-        setMousePressed(false);
+        setMousePressed(0);
     }
 
     return <div className="grid-container">

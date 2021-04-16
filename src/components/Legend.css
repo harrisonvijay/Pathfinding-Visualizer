@@ -3,6 +3,8 @@
   margin-left: 20px;
   font-size: 1rem;
   text-align: center;
+  vertical-align: middle;
+  font-size: 20px;
 }
 
 .legend * {

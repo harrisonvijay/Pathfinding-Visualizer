@@ -15,7 +15,7 @@ export default function Cell(props) {
         props.handleMouseEnter(row, col);
     }
     const handleMouseUp = props.handleMouseUp;
-    var cellClasses = "cell";
+    var cellClasses = "cell noselect";
     if (isStart) {
         cellClasses += " cell-start";
     }
@@ -31,7 +31,7 @@ export default function Cell(props) {
     return (
         <div
             id={`cell-${row}-${col}`}
-            className={cellClasses + " noselect"}
+            className={cellClasses}
             onMouseDown={handleMouseDown}
             onMouseEnter={handleMouseEnter}
             onMouseUp={handleMouseUp}
