@@ -27,7 +27,7 @@ function emptyGrid(rowCount, colCount, startCell, endCell, isWeighted) {
                 isStart: (row === startCell.row && col === startCell.col),
                 isFinish: (row === endCell.row && col === endCell.col),
                 distance: Infinity,
-                weight: (row === startCell.row && col === startCell.col) ? 0 : genWeight(isWeighted),
+                weight: genWeight(isWeighted),
                 isWeighted: isWeighted,
                 prevCell: null,
                 visited: false
@@ -38,7 +38,7 @@ function emptyGrid(rowCount, colCount, startCell, endCell, isWeighted) {
     return newGrid;
 }
 
-function emptyGridMaintainWalls(grid, rowCount, colCount, startCell, endCell, isWeighted) {
+function emptyGridMaintainWallsAndWeights(grid, rowCount, colCount, startCell, endCell, isWeighted) {
     const newGrid = [];
     for (let row = 0; row < rowCount; row++) {
         let currentRow = [];
@@ -50,10 +50,33 @@ function emptyGridMaintainWalls(grid, rowCount, colCount, startCell, endCell, is
                 isStart: (row === startCell.row && col === startCell.col),
                 isFinish: (row === endCell.row && col === endCell.col),
                 distance: Infinity,
-                weight: (row === startCell.row && col === startCell.col) ? 0 : genWeight(isWeighted),
+                weight: isWeighted ? (grid[row][col].weight === 0 ? genWeight(isWeighted) : grid[row][col].weight) : 0,
                 isWeighted: isWeighted,
                 prevCell: null,
                 visited: false
+            });
+        }
+        newGrid.push(currentRow);
+    }
+    return newGrid;
+}
+
+function newGridDifferentWeights(grid, rowCount, colCount) {
+    const newGrid = [];
+    for (let row = 0; row < rowCount; row++) {
+        let currentRow = [];
+        for (let col = 0; col < colCount; col++) {
+            currentRow.push({
+                row: row,
+                col: col,
+                isWall: grid[row][col].isWall,
+                isStart: grid[row][col].isStart,
+                isFinish: grid[row][col].isFinish,
+                distance: grid[row][col].distance,
+                weight: genWeight(grid[row][col].isWeighted),
+                isWeighted: grid[row][col].isWeighted,
+                prevCell: grid[row][col].prevCell,
+                visited: grid[row][col].visited
             });
         }
         newGrid.push(currentRow);
@@ -117,11 +140,12 @@ function toggleWall(grid, row, col) {
 
 export default function Grid(props) {
     const [isMousePressed, setMousePressed] = useState(0);
-    const { rowCount, colCount, startCell, endCell, isWeighted, resetCallback, reset, visualizingOver, isVisualizing, algorithm, setStartCell, setEndCell } = props;
+    const { rowCount, colCount, startCell, endCell, isWeighted, resetCallback, reset, visualizingOver, isVisualizing, algorithm, setStartCell, setEndCell, regenerateWeights, regenerateWeightsCallback } = props;
     const [grid, setGrid] = useState(emptyGrid(rowCount, colCount, startCell, endCell, isWeighted));
 
     useEffect(() => {
-        setGrid(grid => emptyGridMaintainWalls(grid, rowCount, colCount, startCell, endCell, isWeighted));
+        setGrid(grid => prepareGrid(grid));
+        setGrid(grid => emptyGridMaintainWallsAndWeights(grid, rowCount, colCount, startCell, endCell, isWeighted));
         const gridDOM = document.getElementById("grid");
         if (isWeighted) {
             gridDOM.className = "grid";
@@ -129,7 +153,6 @@ export default function Grid(props) {
             gridDOM.className = "grid transparent-font";
         }
     }, [isWeighted, rowCount, colCount, startCell, endCell]);
-
 
     useEffect(() => {
         if (reset) {
@@ -139,26 +162,34 @@ export default function Grid(props) {
     }, [reset, resetCallback]);
 
     useEffect(() => {
+        if (regenerateWeights) {
+            setGrid(grid => prepareGrid(grid));
+            setGrid(grid => newGridDifferentWeights(grid, rowCount, colCount));
+            regenerateWeightsCallback();
+        }
+    }, [regenerateWeights, regenerateWeightsCallback, rowCount, colCount]);
+
+    useEffect(() => {
         function animatePathCell(grid, row, col, i, m) {
-            if (grid[row][col].isStart || grid[row][col].isFinish)
-                return;
             const id = `cell-${row}-${col}`;
             setTimeout(() => {
-                document.getElementById(id).className = "cell cell-path";
-                if (i === m - 2) {
+                if (!grid[row][col].isStart && !grid[row][col].isFinish) {
+                    document.getElementById(id).className = "cell cell-path";
+                }
+                if (i === m - 1) {
                     visualizingOver(true);
                 }
-            }, 20 * i);
+            }, 30 * i);
         }
 
         function animateVisitedCell(grid, row, col, i, n, shortestPathInReverse) {
-            if (grid[row][col].isStart || grid[row][col].isFinish)
-                return;
             const id = `cell-${row}-${col}`;
             const m = shortestPathInReverse.length;
             setTimeout(() => {
-                document.getElementById(id).className = "cell cell-visited";
-                if (i === n - 2) {
+                if (!grid[row][col].isStart && !grid[row][col].isFinish) {
+                    document.getElementById(id).className = "cell cell-visited";
+                }
+                if (i === n - 1) {
                     if (shortestPathInReverse.length === 1) {
                         visualizingOver(false);
                     }
@@ -184,6 +215,7 @@ export default function Grid(props) {
             else if (algorithm === "Dijkstra")
                 algo = dijkstra;
             const [visitedOrder, shortestPathInReverse] = algo(grid.slice(), startCell, endCell);
+            shortestPathInReverse.reverse();
             const n = visitedOrder.length;
             visitedOrder.forEach(([row, col], i) => {
                 animateVisitedCell(grid, row, col, i, n, shortestPathInReverse);
@@ -197,12 +229,11 @@ export default function Grid(props) {
     }, [isVisualizing, grid, algorithm, startCell, endCell, visualizingOver]);
 
     function handleMouseDown(row, col) {
+        setGrid(prepareGrid(grid));
         if (grid[row][col].isStart) {
             setMousePressed(2);
-            setStartCell(row, col);
         } else if (grid[row][col].isFinish) {
             setMousePressed(3);
-            setEndCell(row, col);
         } else {
             setMousePressed(1);
             const newGrid = toggleWall(grid.slice(), row, col);
@@ -212,13 +243,18 @@ export default function Grid(props) {
 
     function handleMouseEnter(row, col) {
         if (isMousePressed === 0) return;
+        setGrid(prepareGrid(grid));
         if (isMousePressed === 1) {
             const newGrid = toggleWall(grid.slice(), row, col);
             setGrid(newGrid);
         } else if (isMousePressed === 2) {
-            setStartCell(row, col);
+            if (!grid[row][col].isWall && !grid[row][col].isFinish) {
+                setStartCell(row, col);
+            }
         } else if (isMousePressed === 3) {
-            setEndCell(row, col);
+            if (!grid[row][col].isWall && !grid[row][col].isStart) {
+                setEndCell(row, col);
+            }
         }
     }
 

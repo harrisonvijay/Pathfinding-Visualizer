@@ -22,6 +22,12 @@ button:hover {
   background-color: rgb(19, 241, 204);
 }
 
+select:disabled,
+button:disabled {
+  background-color: darkcyan;
+  color: rgb(27, 80, 80);
+}
+
 .nav-bar {
   background-color: darkcyan;
   height: 50px;

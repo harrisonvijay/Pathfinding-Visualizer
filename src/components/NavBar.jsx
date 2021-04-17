@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import "./NavBar.css";
 
 export default function NavBar(props) {
+    const [isWeighted, setWeighted] = useState(props.isWeighted);
+    const [isWeightedChosen, setWeightedChosen] = useState(false);
+
     function onAlgoChange() {
         const algoIndex = Number(document.getElementById("algo-choice").value);
         props.setAlgorithmName(algoIndex);
-        const weightChoice = document.getElementById("weight-choice");
         if (algoIndex > 1) {
-            weightChoice.removeAttribute("disabled");
+            setWeighted(true);
         } else {
+            const weightChoice = document.getElementById("weight-choice");
             weightChoice.value = "0";
-            weightChoice.setAttribute("disabled", true);
+            setWeighted(false);
+            setWeightedChosen(false);
             props.setWeighted(false);
         }
     }
@@ -18,6 +22,7 @@ export default function NavBar(props) {
     function onIsWeightedChange() {
         const isWeightedValue = Number(document.getElementById("weight-choice").value);
         props.setWeighted(isWeightedValue === 1);
+        setWeightedChosen(isWeightedValue === 1);
     }
 
     function handleVisualizeClick() {
@@ -26,6 +31,10 @@ export default function NavBar(props) {
 
     function handleClearGridClick() {
         props.resetGrid();
+    }
+
+    function handleRegenerateWeightsClick() {
+        props.regenerateWeights();
     }
 
     return (
@@ -43,7 +52,7 @@ export default function NavBar(props) {
                 </select>
             </div>
             <div className="nav-item">
-                <select id="weight-choice" onChange={onIsWeightedChange} defaultValue="0" disabled>
+                <select id="weight-choice" onChange={onIsWeightedChange} defaultValue="0" disabled={!isWeighted}>
                     <option value="0">Unweighted</option>
                     <option value="1">Weighted</option>
                 </select>
@@ -51,6 +60,11 @@ export default function NavBar(props) {
             <div className="nav-item">
                 <button onClick={handleVisualizeClick}>
                     Visualize
+                </button>
+            </div>
+            <div className="nav-item">
+                <button onClick={handleRegenerateWeightsClick} disabled={!isWeightedChosen}>
+                    Regenerate Weights
                 </button>
             </div>
             <div className="nav-item">

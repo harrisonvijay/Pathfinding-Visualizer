@@ -70,6 +70,7 @@
 
 .cell-start {
   background-color: green;
+  color: transparent;
 }
 
 .cell-finish {

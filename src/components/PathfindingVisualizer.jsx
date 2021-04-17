@@ -4,7 +4,6 @@ import Legend from "./Legend";
 import Grid from "./Grid";
 import "./PathfindingVisualizer.css";
 
-
 export default function PathfindingVisualizer() {
     const algorithms = ["BFS", "DFS", "Dijkstra", "BestFirstSearch", "A*"];
     const algoInfoList = [
@@ -14,13 +13,14 @@ export default function PathfindingVisualizer() {
         "Best First Search is a weighted algorithm. It does not guarantee the shortest path.",
         "A* algorithm is a weighted algorithm. It guarantees the shortest path."
     ];
-    const [startCell, setStartCell] = useState({ row: 10, col: 25 });
-    const [endCell, setEndCell] = useState({ row: 18, col: 45 });
+    const [startCell, setStartCell] = useState({ row: 9, col: 10 });
+    const [endCell, setEndCell] = useState({ row: 9, col: 40 });
     const [isWeighted, setWeighted] = useState(false);
     const [algorithmName, setAlgorithmName] = useState(algorithms[0]);
     const [isVisualizing, setVisualizing] = useState(false);
     const [isReset, setReset] = useState(false);
     const [algoInfo, setAlgoInfo] = useState(algoInfoList[0]);
+    const [regenerateWeights, setRegenerateWeights] = useState(false);
 
     function setStartCellCallback(row, col) {
         setStartCell({ row: row, col: col });
@@ -60,6 +60,14 @@ export default function PathfindingVisualizer() {
         setReset(false);
     }
 
+    function regenerateGridWeights() {
+        setRegenerateWeights(true);
+    }
+
+    function regenerateWeightsCallback() {
+        setRegenerateWeights(false);
+    }
+
     return (
         <div>
             <div id="disable-div" style={{ "display": "none" }}></div>
@@ -69,6 +77,7 @@ export default function PathfindingVisualizer() {
                 setAlgorithmName={setAlgorithmNameCallback}
                 startVisualize={visualizeCallback}
                 resetGrid={resetGrid}
+                regenerateWeights={regenerateGridWeights}
             />
 
             <Legend />
@@ -87,6 +96,8 @@ export default function PathfindingVisualizer() {
                 visualizingOver={visualizingOverCallback}
                 reset={isReset}
                 resetCallback={resetCallback}
+                regenerateWeights={regenerateWeights}
+                regenerateWeightsCallback={regenerateWeightsCallback}
             />
         </div>
     );
