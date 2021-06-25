@@ -1,23 +1,51 @@
-@media screen and (max-width: 4000px), (max-height: 3000px) {
+@media screen and (max-width: 4000px) {
   html {
-    zoom: 150%;
+    zoom: 130%;
   }
 }
 
-@media screen and (max-width: 2000px), (max-height: 1100px) {
+@media screen and (max-width: 2000px) {
   html {
-    zoom: 125%;
+    zoom: 115%;
   }
 }
 
-@media screen and (max-width: 1500px), (max-height: 900px) {
+@media screen and (max-width: 1800px) {
   html {
     zoom: 95%;
   }
 }
 
-@media screen and (max-width: 1300px), (max-height: 750px) {
+@media screen and (max-width: 1450px) {
   html {
     zoom: 75%;
+  }
+}
+
+.overlay {
+  position: absolute;
+  display: none;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.overlay span {
+  word-wrap: break-word;
+  font-size: 2rem;
+  font-weight: bold;
+  width: 100%;
+  padding: 20px;
+}
+
+@media screen and (max-width: 1200px) {
+  .overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .App {
+    display: none;
   }
 }
