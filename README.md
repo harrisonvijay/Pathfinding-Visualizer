@@ -1,6 +1,6 @@
 # Pathfinding Visualizer using React
 
-### Check it out: https://pathfinding-algos-visualizer.herokuapp.com/
+### Check it out: https://pathfinding-visualizer-h2oz.onrender.com
 
 The following pathfinding algorithms can be visualized:
 
